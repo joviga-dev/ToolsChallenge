@@ -6,10 +6,12 @@ import br.com.toolschallenge.dto.input.SolicitacaoPagamentoInput;
 import br.com.toolschallenge.dto.output.RetornoPagamentoDto;
 import br.com.toolschallenge.entity.Transacao;
 import br.com.toolschallenge.enums.EnumStatusTransacao;
+import br.com.toolschallenge.exception.CartaoInvalidoException;
+import br.com.toolschallenge.exception.DadosInvalidosException;
+import br.com.toolschallenge.exception.ExtornoIndisponivelException;
 import br.com.toolschallenge.repository.TransacaoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,17 +64,37 @@ public class TransacaoService {
 
     private EnumStatusTransacao validarDados(Transacao transacao) {
 
-        BigDecimal valor = new BigDecimal(transacao.getDescricao().getValor());
-        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-            return EnumStatusTransacao.NEGADO;
+        BigDecimal valor;
+        try {
+            valor = new BigDecimal(transacao.getDescricao().getValor());
+        } catch (NumberFormatException e) {
+            throw new DadosInvalidosException("Valor inválido");
         }
 
-        if (transacao.getCartao() == null || transacao.getCartao().length() < 13 || transacao.getCartao().length() > 19) {
-            return EnumStatusTransacao.NEGADO;
+        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new DadosInvalidosException("Valor deve ser maior que zero");
+        }
+
+        if (transacao.getCartao() == null) {
+            throw new CartaoInvalidoException("Cartão não informado");
+        }
+
+        if (transacao.getCartao().length() < 13 || transacao.getCartao().length() > 19) {
+            throw new CartaoInvalidoException("Cartão inválido");
         }
 
         String tipo = String.valueOf(transacao.getFormaPagamento().getTipo());
-        int parcelas = Integer.parseInt(transacao.getFormaPagamento().getParcelas());
+
+        int parcelas;
+        try {
+            parcelas = Integer.parseInt(transacao.getFormaPagamento().getParcelas());
+        } catch (Exception e) {
+            throw new DadosInvalidosException("Parcelas inválidas");
+        }
+
+        if (parcelas < 0) {
+            return EnumStatusTransacao.NEGADO;
+        }
 
         if ("AVISTA".equalsIgnoreCase(tipo) && parcelas > 1) {
             return EnumStatusTransacao.NEGADO;
@@ -97,7 +119,7 @@ public class TransacaoService {
         Transacao transacao = buscarOuFalhar(id);
 
         if (transacao.getDescricao().getStatus() != EnumStatusTransacao.AUTORIZADO) {
-            throw new RuntimeException("Transação não pode ser estornada");
+            throw new ExtornoIndisponivelException("Transação não pode ser estornada");
         }
 
         transacao.getDescricao().setStatus(EnumStatusTransacao.ESTORNADO);
