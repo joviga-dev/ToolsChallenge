@@ -40,7 +40,7 @@ public class TransacaoService {
 
         Transacao transacao = solicitacaoPagamentoDtoDisassembler.toEntity(dto);
 
-        EnumStatusTransacao status = validarPagamento(transacao);
+        EnumStatusTransacao status = validarDados(transacao);
         transacao.getDescricao().setStatus(status);
 
         if (status == EnumStatusTransacao.AUTORIZADO) {
@@ -60,7 +60,7 @@ public class TransacaoService {
         return String.valueOf(System.currentTimeMillis());
     }
 
-    private EnumStatusTransacao validarPagamento(Transacao transacao) {
+    private EnumStatusTransacao validarDados(Transacao transacao) {
 
         BigDecimal valor = new BigDecimal(transacao.getDescricao().getValor());
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
