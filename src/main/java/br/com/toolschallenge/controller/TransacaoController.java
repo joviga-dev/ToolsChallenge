@@ -28,4 +28,9 @@ public class TransacaoController {
         Transacao transacao = transacaoService.buscarOuFalhar(id);
         return ResponseEntity.ok(transacao);
     }
+
+    @GetMapping
+    public ResponseEntity<?> listar(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(transacaoService.listarTransacoes(page));
+    }
 }

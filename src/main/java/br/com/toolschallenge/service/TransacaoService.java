@@ -9,7 +9,11 @@ import br.com.toolschallenge.enums.EnumStatusTransacao;
 import br.com.toolschallenge.repository.TransacaoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -79,5 +83,13 @@ public class TransacaoService {
         }
 
         return EnumStatusTransacao.AUTORIZADO;
+    }
+
+    public Page<RetornoPagamentoDto> listarTransacoes(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+
+        Page<Transacao> transacoes = transacaoRepository.findAll(pageable);
+
+        return transacoes.map(retornoPagamentoDtoAssembler::toDto);
     }
 }
