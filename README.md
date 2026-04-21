@@ -11,7 +11,7 @@ foi simular um sistema de adquirência de forma simples, mantendo clareza nas re
 
 ## Tecnologias utilizadas
 
-- Java 21
+- Java 17
 - Spring Boot
 - Spring Data JPA
 - H2 Database
