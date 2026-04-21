@@ -92,4 +92,18 @@ public class TransacaoService {
 
         return transacoes.map(retornoPagamentoDtoAssembler::toDto);
     }
+
+    public RetornoPagamentoDto realizarEstorno(String id) {
+        Transacao transacao = buscarOuFalhar(id);
+
+        if (transacao.getDescricao().getStatus() != EnumStatusTransacao.AUTORIZADO) {
+            throw new RuntimeException("Transação não pode ser estornada");
+        }
+
+        transacao.getDescricao().setStatus(EnumStatusTransacao.ESTORNADO);
+
+        transacaoRepository.save(transacao);
+
+        return retornoPagamentoDtoAssembler.toDto(transacao);
+    }
 }

@@ -23,6 +23,12 @@ public class TransacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(retorno);
     }
 
+    @PostMapping("/estorno/{id}")
+    public ResponseEntity<?> realizarEstorno(@PathVariable String id) {
+        RetornoPagamentoDto retorno = transacaoService.realizarEstorno(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(retorno);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable String id) {
         Transacao transacao = transacaoService.buscarOuFalhar(id);
