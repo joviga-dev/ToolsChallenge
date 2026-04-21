@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Embeddable
 public class Descricao {
-    private float valor;
+    private Float valor;
     private LocalDateTime dataHora;
     private String estabelecimento;
     private String nsu;

@@ -100,7 +100,7 @@ public class TransacaoService {
             return EnumStatusTransacao.NEGADO;
         }
 
-        if ("PARCELADO".equalsIgnoreCase(tipo) && parcelas <= 1) {
+        if (tipo.startsWith("PARCELADO") && parcelas <= 1) {
             return EnumStatusTransacao.NEGADO;
         }
 
